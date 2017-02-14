@@ -7,11 +7,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using scopuli.common;
 
 namespace scopuli.sqlite
 {
     public class Startup
     {
+        private IConfigurationRoot Configuration { get; }
+
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -22,11 +25,14 @@ namespace scopuli.sqlite
             Configuration = builder.Build();
         }
 
-        public IConfigurationRoot Configuration { get; }
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton(Configuration);
+
+            services.AddDbContext<SqliteScopuliDbContext>(ServiceLifetime.Scoped);
+            services.AddScoped<ScopuliDbContext, SqliteScopuliDbContext>();
+
             // Add framework services.
             services.AddMvc();
         }
